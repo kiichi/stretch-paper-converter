@@ -1,8 +1,19 @@
 ## Totally Unofficial Rendering Experiment of StretchPaper on Browser
 
-Attempt to render StretchPaper App's drawing data on web browser (this is an awesome app if you have invested on Apple pencil 2 and iPad Pro, Good-Bye Dry Erase Board). Totally Experimental and Unofficial.
+Attempt to render StretchPaper App's drawing data on web browser (this is an awesome app if you have invested on Apple pencil 2 and iPad Pro, Good-Bye Dry Erase Board). This web conversion project is Totally Experimental and Unofficial.
+
+
 
 - [Go to Demo Page](https://kiichi.github.io/stretch-paper-converter/)
+
+
+## Screenshots
+
+![Very simple Drawing][https://github.com/kiichi/stretch-paper-converter/blob/main/compare.png?raw=true]
+
+
+## References
+
 
 Full Credits and respects to the app develoepr + all those library + article authors:
 
@@ -17,7 +28,9 @@ Full Credits and respects to the app develoepr + all those library + article aut
 
 
 
-Process (my notes):
+## Process 
+
+(my notes)
 
 1. Export StretchPaper raw data (.stretch)
 2. This is Base64 MessagePack format and it contains another binary plist contents for points
@@ -32,7 +45,7 @@ Process (my notes):
 11. Each points consists of 5 values, and they repeats. [x, y, (z or inc counter), (pressure or stroke width), (0.25 something not sure)...]
 12. Translate them into SVG. Using line / polyline function for now. For smoothing effect, Bezier in path should be ideal (?) [Smooth a Svg path with cubic bezier curves | by François Romain | Medium](https://medium.com/@francoisromain/smooth-a-svg-path-with-cubic-bezier-curves-e37b49d46c74)
 
-Other Notes:
+## Other Notes
 
 Maybe just use SigPad? 
 
@@ -59,13 +72,13 @@ My thought process:
 1. figured out command + - either collapse or keep them so that we can do redo on web
 
 
-Notes about command:
+### Notes about command
 - Offset = 1 is command. + means added points and - means erased object(s)
 - If it's added, the GUID is stored in Offset 5 - 41.
 - If it's -, then one eraser stroken can erase multiple GUID(s)
 - Need collapse those before render, or it might be fun to do undo - redo stack on browser?
 
-TODO:
+## TODO
 - Parse other parts like meta information 
 - figure out smooth curve with proper thickness
 - collapse original lines so that subtract erased lines
