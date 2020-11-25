@@ -34,11 +34,11 @@ Full Credits and respects to the app develoepr + all those library + article aut
 
 1. Export StretchPaper raw data (.stretch)
 2. This is Base64 MessagePack format and it contains another binary plist contents for points
-3. Load the .stretch file using MessagePack
+3. Load the .stretch file ~~using MessagePack~~
 4. Split by the new line char
 5. Decode Base64 each line
-6. Parse the line in MessagePack format.
-7. There are points Uint16 chunk at offset 105. next byte is the length.
+6. Parse the line in MessagePack format (manually).
+7. There are some Uint16 chunk at offset 105. next byte is the length.
 8. Decode Base64 for the next n bytes.
 9. Get binary array into binary plist parser
 10. Get array of array which contains points data
