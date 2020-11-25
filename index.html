@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>StretchPaper App Raw Data Visualizer</title>
+    <!--
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/msgpack5/4.2.0/msgpack5.min.js" integrity="sha512-D0GVJIuE4FlQJvwnzUBEQ6cb1f72Tg/4iELPcFZpU/a8QPvX805QUm13NhN1kcDtkbrL8Ji/+uyapjaXTqm00Q==" crossorigin="anonymous"></script>
+    -->
+    <script src="xoyip-bplist-parser.js"></script>
+    <script src="xoyip-jdataview.js"></script> 
+    <script src="https://cdn.jsdelivr.net/npm/@svgdotjs/svg.js@3.0/dist/svg.min.js"></script>
+</head>
+<body>
+    <span style="border:1px solid black; width:600px; position:absolute; left:700px;">
+        <h4>Exported PNG</h4>
+        <img src="test2.png" width="700"/>
+    </span>
+    <h4>Rendered in SVG from .stretch file (<a href="https://github.com/kiichi/stretch-paper-converter" target=_blank>git repo link</a>)</h4>
+    
+    <script>
+        const bplistParser = require('bplistParser.js');
+        const draw = SVG().addTo('body').size(2000, 2000);
+
+        function base64ToArrayBuffer(base64) {
+            var binary_string = window.atob(base64);
+            var len = binary_string.length;
+            var bytes = new Uint8Array(len);
+            for (var i = 0; i < len; i++) {
+                bytes[i] = binary_string.charCodeAt(i);
+            }
+            return bytes.buffer;
+        }
+
+        
+        //msgpack5().encode({ 'hello': 'world' }).toString('hex');
+        //msgpack5().decode('oSsA2SQyQjRDQUY4Mi0zMEEyLTQzOUUtODUzNy1BOTBDMzY3MzRFMziDpm9iamVjdIOlc3VwZXKBo2JveJTLQH8QAAAAAADLQHtIAAAAAADLQC4AAAAAAADLQBgAAAAAAACmcG9pbnRz2axZbkJzYVhOME1EQ3FBUUlEQkFVR0J3Z0VDU05BZjBBQUFBQUFBQ05BZTNnQUFBQUFBQkFBSXdBQUFBQUFBQUFBSTBCU1B3OEFBQUFBSTBCLzBBQUFBQUFBSTBCN2VBQUFBQUFBRUFnalFGSS9Ed0FBQUFBSUV4d2xKekE1UWt0TkFBQUFBQUFBQVFFQUFBQUFBQUFBQ2dBQUFBQUFBQUFBQUFBQUFBQUFBRlk9qXN0YXJ0VGltZctAVU6ljpFvcqR0eXBlpnN0cm9rZaRtZXRhgqVzdXBlcoKhegOhdJbLQFOlJDh6yCLLAAAAAAAAAADLAAAAAAAAAADLQFOlJDh6yCLLQUgMRzajTL3LQUfnXe2VLgujcGVuhqFkwqFyw6F3yz/wAAAAAAAAoXbLP+AAAAAAAAChY6gxOTE5MTlmZqFmww==')
+        function parseLineTest(line){
+            if (!line){
+                return '';
+            }
+            let lineData = [];
+            let buff = base64ToArrayBuffer(line);
+            let arr = new Uint8Array(buff);
+            //console.log(buff);
+            var chunk = [];
+
+            try {
+                //const command = msgpack5().decode(new Uint8Array(arr.slice(0,2)));
+                //lineData.push(command);
+                //const guid = msgpack5().decode(new Uint8Array(arr.slice(3,69)));
+                //lineData.push(guid);
+                //lineData.push(String.fromCharCode(arr.slice(0,2)));
+            } catch(e){
+
+            }
+            for (var i=0; /*66;*/ i<arr.length; i++){
+                if (arr[i] == 0){
+                    if (chunk.length > 0){
+                        let info = '[' + (i - chunk.length) + ':' + (i-1) + " (" + chunk.length + ")]";
+                        try {
+                            //console.log(chunk);
+                            let result = msgpack5().decode(new Uint8Array(chunk));
+                            //console.log(result);
+                            //lineData.push(result);
+                            lineData.push(result + info);
+                        } catch(e){
+                            //console.error(e, new Uint8Array(chunk));
+                            //lineData.push('[ERROR]');
+                            lineData.push('<ERROR>' + info);
+                        }
+                        
+                    }
+                    chunk = [];
+                }
+                else {
+                    chunk.push(arr[i]);
+                }
+                //console.log(arr[i]);
+            }
+            return lineData.join(' ');
+        }
+
+
+        function parseLine(line){
+            if (!line){
+                return '';
+            }
+            let lineData = [];            
+            let buff = base64ToArrayBuffer(line);
+            let arr = new Uint8Array(buff);
+            console.log(String.fromCharCode(arr[0]), 
+                        String.fromCharCode(arr[1]),  // command
+                        String.fromCharCode(...arr.slice(5,41)) // guid
+                        );
+            //console.log('command',line.slice(3,4));
+            let dataView = new DataView(buff);
+            for (var i=0; i<arr.length; i++){
+                try {
+                    //let result = msgpack5().decode(new Uint8Array(arr.slice(i,i+1)));
+                    //https://github.com/sugendran/msgpack-visualizer/blob/master/index.html
+                    let result = arr[i];
+                    if (result === 0xc0){
+                        lineData.push('[NULL]');
+                    }
+                    else if (result === 0xc1){
+                        lineData.push('[false]');
+                    }
+                    else if (result === 0xc2){
+                        lineData.push('[true]');
+                    }
+                    else if (result === 0xc3){
+                        lineData.push('[true]');
+                    }
+                    else if (result === 0xc4){
+                        lineData.push('[8]');
+                    }
+                    else if (result === 0xc5){
+                        lineData.push('[16]');
+                    }
+                    else if (result === 0xc6){
+                        lineData.push('[32]');
+                    }
+                    else if (result === 0xca){
+                        lineData.push('[float]');
+                    }
+                    else if (result === 0xcb){
+                        lineData.push('[double]');
+                    }
+                    else if (result === 0xcc){
+                        lineData.push('[uint8]');
+                    }
+                    else if (result === 0xcd){
+                        lineData.push('[uint16]');
+                    }
+                    else if (result === 0xce){
+                        lineData.push('[uint32]');
+                    }
+                    else if (result === 0xcf){
+                        lineData.push('[uint64]');
+                    }
+                    else if (result === 0xd0){
+                        lineData.push('[int8]');
+                    }
+                    else if (result === 0xd1){
+                        lineData.push('[int16]');
+                    }
+                    else if (result === 0xd2){
+                        lineData.push('[int32]');
+                    }
+                    else if (result === 0xd3){
+                        lineData.push('[int64]');
+                    }
+                    else if (result === 0xde){
+                        lineData.push('[map16]');
+                    }
+                    else if (result === 0xdf){
+                        lineData.push('[map32]');
+                    }
+                    else if (result === 0xdc){
+                        lineData.push('[array16]');
+                    }
+                    else if (result === 0xdd){
+                        lineData.push('[array32]');
+                    }
+                    else if (result === 0xd9){
+                        lineData.push('[raw8]');
+                    }
+                    else if (result === 0xda){
+                        lineData.push('[raw16]'); 
+                        // this is only a section using Uint16 that might represents the points. 
+                        // see string sequence before this chunk
+
+                        let len = dataView.getUint16(i+1);
+                        
+                        // console.log('pos,length',i,len);
+                        
+                        // just hardcode points for now... looking for offset 105
+                        //if (i === 105){
+
+                            //console.log(dataView.buffer.slice(i+3,i+3+len))
+                            let pointsStr = String.fromCharCode(...arr.slice(i+3,i+3+len));
+                            //console.log(pointsStr); // if you decode this base64, you get bplist... this sounds like
+                            let points = bplistParser.parseBuffer(base64ToArrayBuffer(pointsStr))[0];
+                            //console.log(points);
+
+                            // Use polyline
+                            let xyArr = points.filter((val,idx)=>{
+                                return (idx % 5 === 0 || idx % 5 === 1);
+                            });
+                            draw.polyline(xyArr).fill('none').stroke({color:'#000', width: 2.5, linejoin:'round' });
+
+
+                            // Use Lines
+                            // for (var k=0; k<points.length-5; k+=5){
+                            //     draw.line([points[k], points[k+1], points[k+5], points[k+6]])
+                            //         .fill('none')
+                            //         .stroke({color:'#000', width: points[k+3]*30 }); // not sure about the thinkness
+                            // }
+
+                            // draw.polyline([0,0, 100,50, 50,100]).fill('none').stroke({ width: 10 });
+                            ///console.log('points',points);
+                            
+                            //console.log(xyArr);
+
+
+                            // for (var k=0; k<points.length; k++){
+                            //     if (k % 5 === 0){
+                            //         draw.line(points[k],points[k+1],points[k+2],points[k+3]).stroke({color:'#000'});
+                            //     }
+                            // }
+                        
+                        //}
+                        //console.log(pointsData); // array 
+
+                        // [x,
+                        // y, 
+                        // z or incrementing by 6-8 or so??
+                        // values like 0.31 o.28... diameter? = pressure of the pen applied?
+                        // somewhat always 0.25?
+                        // ... repeats these 5 set of value]
+                        
+
+
+                        // apple's binary plist format - see below:
+                        // https://medium.com/@karaiskc/understanding-apples-binary-property-list-format-281e6da00dbd
+                        // https://github.com/joeferner/node-bplist-parser/blob/master/bplistParser.js
+
+
+                        /*
+
+                        for (var j=2; j<len; j=j+2){
+                            let val = dataView.getUint16(i+j);
+                            console.log(j,val);
+                            
+                            //console.log(j,dataView.getUint16(i+j));
+                            //console.log(j,dataView.getUint16(i+j));
+                        }
+                        */
+
+                        //for (var j=0;j<len; j=j+2){
+                            //let val = String.fromCharCode(arr[i+4]);
+                            //console.log(val);
+                        //}
+
+                        
+                    }
+                    else if (result === 0xdb){
+                        lineData.push('[raw32]');
+                    }
+                    else {
+                        lineData.push(String.fromCharCode(arr[i]));
+                    }
+                    //lineData.push(result);
+                }catch(e){
+                    console.error(e);
+                }
+            }
+            return lineData.join('');
+        }
+
+        (async ()=>{
+            const res = await fetch('test2.stretch');
+            const content = await res.text();
+            const lines = content.split('\n');
+            //console.log(lines);
+            for (var i=1; i<lines.length; i++){
+                try {
+                    const decoded = parseLine(lines[i]);
+                    //console.log(decoded);
+                }
+                catch (e){
+                    console.error(i,e);
+                }
+            }
+        })();
+
+
+    </script>
+</body>
+</html>
