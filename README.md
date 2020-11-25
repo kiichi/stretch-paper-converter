@@ -9,7 +9,7 @@ Attempt to render StretchPaper App's drawing data on web browser (this is an awe
 
 ## Screenshots
 
-![Very simple Drawing][https://github.com/kiichi/stretch-paper-converter/blob/main/compare.png?raw=true]
+![Very simple Drawing](https://github.com/kiichi/stretch-paper-converter/blob/main/compare.png?raw=true)
 
 
 ## References
