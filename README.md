@@ -2,6 +2,8 @@
 
 Attempt to render StretchPaper App's drawing data on web browser (this is an awesome app if you have invested on Apple pencil 2 and iPad Pro, Good-Bye Dry Erase Board). Totally Experimental and Unofficial.
 
+- [Go to Demo Page](https://kiichi.github.io/stretch-paper-converter/)
+
 Full Credits and respects to the app develoepr + all those library + article authors:
 
 - [Stretchpaper — The infinite canvas for iPad.](http://www.stretchpaper.com/)
